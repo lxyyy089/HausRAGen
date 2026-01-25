@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeGenii - Smart Home Automation Assistant</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f7;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 560px;
+            background: white;
+            border-right: 1px solid #e5e5e7;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .logo-section {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1d1d1f;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text p {
+            font-size: 13px;
+            color: #86868b;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+            letter-spacing: -0.2px;
+        }
+
+        .select-box {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .stats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .stat-label {
+            color: #86868b;
+            font-weight: 400;
+        }
+
+        .stat-value {
+            color: #1d1d1f;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            cursor: pointer;
+            color: #1d1d1f;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .menu-item:hover {
+            color: #667eea;
+        }
+
+        .menu-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .upload-btn {
+            padding: 12px;
+            border: 2px dashed #d2d2d7;
+            border-radius: 8px;
+            background: #f9f9fb;
+            color: #86868b;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .upload-btn input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .upload-btn:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f0f1ff;
+            color: #667eea;
+        }
+
+        .upload-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            background: #f5f5f7;
+        }
+
+        .upload-btn.uploading {
+            border-color: #667eea;
+            background: #f0f1ff;
+            color: #667eea;
+            cursor: wait;
+        }
+
+        .upload-desc {
+            font-size: 12px;
+            color: #86868b;
+            line-height: 1.5;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        .floor-plan-preview {
+            margin-top: 16px;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .floor-plan-canvas {
+            width: 100%;
+            height: 550px;
+            position: relative;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floor-plan-canvas.empty {
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .floor-plan-canvas svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .floor-plan-canvas img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .device-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border: 2px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .device-marker:hover {
+            width: 24px;
+            height: 24px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            z-index: 100;
+        }
+
+        .device-label {
+            position: absolute;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(-50%);
+            bottom: -30px;
+            left: 50%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, bottom 0.2s;
+            z-index: 1000;
+            border: 1px solid #e5e5e7;
+        }
+
+        .device-marker:hover + .device-label {
+            opacity: 1;
+            bottom: -35px;
+        }
+
+        .devices-list {
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #fafafa;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .room-group {
+            margin-bottom: 16px;
+        }
+
+        .room-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .room-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            padding: 6px 8px;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .device-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            background: white;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .device-item:hover {
+            background: #f0f1ff;
+            transform: translateX(4px);
+        }
+
+        .device-item-icon {
+            font-size: 14px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .device-item-name {
+            flex: 1;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .device-item-type {
+            color: #86868b;
+            font-size: 11px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .view-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #d2d2d7;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #86868b;
+        }
+
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .view-btn:hover:not(.active) {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+        }
+
+        .header {
+            background: white;
+            padding: 24px 32px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 6px;
+            letter-spacing: -0.7px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #86868b;
+            font-weight: 400;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .welcome-message {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #1d1d1f;
+            font-weight: 400;
+        }
+
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 18px;
+            border-bottom-right-radius: 4px;
+            max-width: 70%;
+            font-size: 14.5px;
+            line-height: 1.5;
+            font-weight: 400;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+        }
+
+        .assistant-message {
+            align-self: flex-start;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 85%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .processing-steps {
+            margin-bottom: 20px;
+        }
+
+        .processing-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 13.5px;
+            color: #1d1d1f;
+            font-weight: 400;
+        }
+
+        .step-icon {
+            font-size: 16px;
+        }
+
+        .success-banner {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-banner {
+            background: #fee;
+            border-left: 4px solid #dc2626;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #991b1b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .device-error-banner {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #dc2626;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+        }
+
+        .device-error-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .device-error-icon {
+            font-size: 32px;
+        }
+
+        .device-error-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #991b1b;
+        }
+
+        .device-error-content {
+            margin-left: 44px;
+        }
+
+        .device-error-reason {
+            font-size: 14px;
+            color: #7f1d1d;
+            margin-bottom: 16px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .device-error-missing {
+            background: white;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .device-error-missing-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 8px;
+        }
+
+        .device-error-missing-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .device-error-missing-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 13px;
+            color: #7f1d1d;
+        }
+
+        .device-error-suggestion {
+            background: #fff7ed;
+            border-left: 3px solid #f59e0b;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.6;
+        }
+
+        .device-error-suggestion strong {
+            font-weight: 600;
+            color: #78350f;
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            align-self: flex-start;
+            max-width: 85%;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f4f6;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .response-card {
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 4px;
+        }
+
+        .response-header {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 18px;
+            letter-spacing: -0.3px;
+        }
+
+        .intent-section {
+            margin-bottom: 24px;
+        }
+
+        .intent-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 10px;
+        }
+
+        .intent-content {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #374151;
+            font-weight: 400;
+        }
+
+        .plan-section {
+            margin-bottom: 24px;
+        }
+
+        .plan-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 10px;
+        }
+
+        .plan-trigger {
+            font-size: 13.5px;
+            color: #374151;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .plan-action-title {
+            font-size: 13.5px;
+            color: #374151;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .plan-steps {
+            list-style-position: inside;
+            margin-left: 0;
+            color: #374151;
+        }
+
+        .plan-steps li {
+            font-size: 13.5px;
+            line-height: 1.7;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .plan-steps li strong {
+            font-weight: 600;
+        }
+
+        .code-section {
+            margin-bottom: 20px;
+        }
+
+        .code-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 10px;
+        }
+
+        .code-note {
+            font-size: 12.5px;
+            color: #6b7280;
+            font-style: italic;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+
+        .code-block {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+
+        .code-line {
+            display: block;
+        }
+
+        .code-keyword {
+            color: #c792ea;
+            font-weight: 500;
+        }
+
+        .code-string {
+            color: #c3e88d;
+        }
+
+        .code-property {
+            color: #82aaff;
+        }
+
+        .code-value {
+            color: #f78c6c;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: -0.2px;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-warning {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-cancel {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .confirmation-text {
+            font-size: 14px;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-area {
+            padding: 24px 32px;
+            background: white;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .input-box {
+            flex: 1;
+            padding: 14px 18px;
+            border: 1px solid #d2d2d7;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 400;
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-box::placeholder {
+            color: #9ca3af;
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .send-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .example-text {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 12px;
+            padding: 0 4px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .connection-status {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .status-connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+    // 自动检测是本地开发还是生产环境
+    const API_BASE_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:3000'
+        : '';  // 生产环境使用相对路径
+
+    function HomeGenii() {
+        const [input, setInput] = useState('');
+        const [messages, setMessages] = useState([]);
+        const [isLoading, setIsLoading] = useState(false);
+        const [floorPlanImage, setFloorPlanImage] = useState(null);
+        const [floorPlanUploaded, setFloorPlanUploaded] = useState(false);
+        const [floorPlanId, setFloorPlanId] = useState(null);
+        const [isUploadingFloorPlan, setIsUploadingFloorPlan] = useState(false);
+        const [deviceMapping, setDeviceMapping] = useState(null);
+        const [devices, setDevices] = useState([]);
+        const [showFloorPlan, setShowFloorPlan] = useState(true);
+        const [selectedModel, setSelectedModel] = useState('GPT-5');
+        const [connectionStatus, setConnectionStatus] = useState('checking');
+        const [stats, setStats] = useState({ tokens: 0, price: 0 });
+        const [viewMode, setViewMode] = useState('map');
+
+        const floorPlanInputRef = useRef(null);
+        const deviceMappingInputRef = useRef(null);
+        const chatAreaRef = useRef(null);
+
+        useEffect(() => {
+            checkBackendConnection();
+        }, []);
+
+        useEffect(() => {
+            if (chatAreaRef.current) {
+                chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
+            }
+        }, [messages, isLoading]);
+
+        const checkBackendConnection = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (response.ok) {
+                    setConnectionStatus('connected');
+                } else {
+                    setConnectionStatus('disconnected');
+                }
+            } catch (error) {
+                console.error('Backend connection failed:', error);
+                setConnectionStatus('disconnected');
+            }
+        };
+
+        const handleFloorPlanUpload = async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (!file.name.endsWith('.svg') && file.type !== 'image/svg+xml') {
+                    alert('Please upload an SVG file format only');
+                    e.target.value = '';
+                    return;
+                }
+
+                setIsUploadingFloorPlan(true);
+
+                try {
+                    const formData = new FormData();
+                    formData.append('floorPlan', file);
+
+                    console.log('📤 Uploading floor plan to backend...');
+
+                    const response = await fetch(`${API_BASE_URL}/api/upload-floor-plan`, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Floor plan uploaded successfully:', data);
+
+                        setFloorPlanId(data.fileId);
+
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            try {
+                                const svgContent = event.target.result;
+                                const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+                                const url = URL.createObjectURL(blob);
+                                setFloorPlanImage(url);
+                                setFloorPlanUploaded(true);
+                                alert(`Floor plan uploaded successfully!\nFile ID: ${data.fileId}`);
+                            } catch (error) {
+                                console.error('Error loading floor plan for display:', error);
+                                alert('Floor plan uploaded to server but failed to display locally. You can still upload device mapping.');
+                                setFloorPlanUploaded(true);
+                            }
+                        };
+                        reader.onerror = (error) => {
+                            console.error('FileReader error:', error);
+                            alert('Floor plan uploaded to server but failed to display locally. You can still upload device mapping.');
+                            setFloorPlanUploaded(true);
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Failed to upload floor plan: ${errorData.message}`);
+                        e.target.value = '';
+                    }
+                } catch (error) {
+                    console.error('Error uploading floor plan:', error);
+                    alert(`Failed to upload floor plan: ${error.message}`);
+                    e.target.value = '';
+                } finally {
+                    setIsUploadingFloorPlan(false);
+                }
+            }
+        };
+
+        const handleDeviceMappingUpload = async (e) => {
+            if (!floorPlanUploaded || !floorPlanId) {
+                alert('Please upload a floor plan first');
+                e.target.value = '';
+                return;
+            }
+
+            const file = e.target.files[0];
+            if (file) {
+                if (!file.name.endsWith('.json')) {
+                    alert('Please upload a JSON format device mapping file');
+                    e.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const mapping = JSON.parse(event.target.result);
+
+                        if (!Array.isArray(mapping)) {
+                            alert('Invalid device mapping format. Expected an array.');
+                            return;
+                        }
+
+                        console.log('📊 Parsed device mapping:', mapping);
+                        console.log('📄 Using floor plan ID:', floorPlanId);
+
+                        const response = await fetch(`${API_BASE_URL}/api/upload-device-mapping`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                deviceMapping: mapping,
+                                floorPlanId: floorPlanId
+                            }),
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('✅ Device mapping uploaded successfully:', data);
+
+                            setDeviceMapping({ devices: data.devices });
+                            setDevices(data.devices);
+
+                            alert(`Device mapping uploaded successfully!\n${data.deviceCount} devices placed in ${data.roomsProcessed} rooms.`);
+                        } else {
+                            const errorData = await response.json();
+                            alert(`Failed to upload device mapping: ${errorData.message}`);
+                        }
+                    } catch (error) {
+                        console.error('Error parsing device mapping:', error);
+                        alert('Invalid device mapping file. Please upload a valid JSON file.');
+                    }
+                };
+                reader.onerror = (error) => {
+                    console.error('FileReader error:', error);
+                    alert('Failed to read the device mapping file.');
+                };
+                reader.readAsText(file);
+            }
+        };
+
+        const handleSend = async () => {
+            if (input.trim() && !isLoading) {
+                const userMessage = input.trim();
+                setInput('');
+
+                setMessages(prev => [...prev, {
+                    role: 'user',
+                    content: userMessage,
+                    timestamp: new Date().toISOString()
+                }]);
+
+                setIsLoading(true);
+
+                const processingMessageIndex = messages.length + 1;
+                setMessages(prev => [...prev, {
+                    role: 'processing',
+                    content: '',
+                    processingSteps: [],
+                    timestamp: new Date().toISOString()
+                }]);
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/generate-tap`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: userMessage,
+                            model: selectedModel,
+                            deviceMapping: deviceMapping,
+                            conversationHistory: messages
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const data = line.slice(6);
+                                if (data === '[DONE]') continue;
+
+                                try {
+                                    const parsed = JSON.parse(data);
+
+                                    if (parsed.type === 'step') {
+                                        const filteredSteps = parsed.steps.filter(step =>
+                                            !step.text.includes('Validating device capabilities') &&
+                                            !step.text.includes('Device validation passed')
+                                        );
+
+                                        if (filteredSteps.length > 0) {
+                                            setMessages(prev => {
+                                                const newMessages = [...prev];
+                                                if (newMessages[processingMessageIndex]?.role === 'processing') {
+                                                    newMessages[processingMessageIndex] = {
+                                                        ...newMessages[processingMessageIndex],
+                                                        processingSteps: filteredSteps
+                                                    };
+                                                }
+                                                return newMessages;
+                                            });
+                                        }
+                                    } else if (parsed.type === 'complete') {
+                                        setMessages(prev => {
+                                            const newMessages = prev.filter((_, index) => index !== processingMessageIndex);
+
+                                            const filteredProcessingSteps = parsed.data.processingSteps?.filter(step =>
+                                                !step.text.includes('Validating device capabilities') &&
+                                                !step.text.includes('Device validation passed')
+                                            ) || [];
+
+                                            return [...newMessages, {
+                                                role: 'assistant',
+                                                content: parsed.data.response,
+                                                tapCode: parsed.data.tapCode,
+                                                intent: parsed.data.intent,
+                                                plan: parsed.data.plan,
+                                                processingSteps: filteredProcessingSteps,
+                                                timestamp: new Date().toISOString()
+                                            }];
+                                        });
+
+                                        if (parsed.data.stats) {
+                                            setStats({
+                                                tokens: stats.tokens + (parsed.data.stats.tokens || 0),
+                                                price: stats.price + (parsed.data.stats.price || 0)
+                                            });
+                                        }
+                                    } else if (parsed.type === 'error') {
+                                        setMessages(prev => {
+                                            const newMessages = prev.filter((_, index) => index !== processingMessageIndex);
+                                            return [...newMessages, {
+                                                role: 'device_error',
+                                                content: parsed.message || 'Unknown error from server',
+                                                details: parsed.details || {},
+                                                timestamp: new Date().toISOString()
+                                            }];
+                                        });
+                                    }
+                                } catch (e) {
+                                    console.error('Error parsing SSE data:', e);
+                                }
+                            }
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('Error sending message:', error);
+
+                    setMessages(prev => {
+                        const newMessages = prev.filter((_, index) => index !== processingMessageIndex);
+                        return [...newMessages, {
+                            role: 'error',
+                            content: `Sorry, I encountered an error: ${error.message}`,
+                            timestamp: new Date().toISOString()
+                        }];
+                    });
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        const handleConfirm = async (messageIndex, action) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/confirm-action`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: action,
+                        messageIndex: messageIndex,
+                        tapCode: messages[messageIndex].tapCode
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Action confirmed:', data);
+
+                    if (action === 'approve') {
+                        alert('TAP code has been deployed successfully!');
+                    } else if (action === 'modify') {
+                        setInput('I would like to make some changes...');
+                    } else if (action === 'cancel') {
+                        alert('TAP code deployment has been cancelled.');
+                    }
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to confirm action: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error('Error confirming action:', error);
+                alert(`Failed to confirm action: ${error.message}`);
+            }
+        };
+
+        const getDeviceIcon = (type) => {
+            const icons = {
+                'light': '💡',
+                'motion_sensor': '📡',
+                'camera': '📷',
+                'temperature_humidity_sensor': '🌡️',
+                'air_conditioner': '❄️',
+                'plug': '🔌',
+                'robot_vacuum': '🤖',
+                'fan': '🌀',
+                'doorbell': '🔔',
+                'door_window_sensor': '🚪'
+            };
+            return icons[type] || '📍';
+        };
+
+        const getDeviceTypeName = (type) => {
+            const names = {
+                'light': 'Light',
+                'motion_sensor': 'Motion Sensor',
+                'camera': 'Camera',
+                'temperature_humidity_sensor': 'Temp/Humidity',
+                'air_conditioner': 'AC',
+                'plug': 'Smart Plug',
+                'robot_vacuum': 'Vacuum',
+                'fan': 'Fan',
+                'doorbell': 'Doorbell',
+                'door_window_sensor': 'Door/Window'
+            };
+            return names[type] || type;
+        };
+
+        const getDevicesByRoom = () => {
+            const rooms = {};
+            devices.forEach(device => {
+                if (!rooms[device.area]) {
+                    rooms[device.area] = [];
+                }
+                rooms[device.area].push(device);
+            });
+            return rooms;
+        };
+
+        const renderMessage = (message, index) => {
+            if (message.role === 'user') {
+                return (
+                    <div key={index} className="user-message">
+                        {message.content}
+                    </div>
+                );
+            } else if (message.role === 'processing') {
+                return (
+                    <div key={index} className="assistant-message">
+                        {message.processingSteps && message.processingSteps.length > 0 && (
+                            <div className="processing-steps">
+                                {message.processingSteps.map((step, i) => (
+                                    <div key={i} className="processing-step">
+                                        <span className="step-icon">{step.icon}</span>
+                                        {step.text}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                );
+            } else if (message.role === 'device_error') {
+                return (
+                    <div key={index} className="assistant-message">
+                        <div className="device-error-banner">
+                            <div className="device-error-header">
+                                <span className="device-error-icon">🚫</span>
+                                <span className="device-error-title">Unable to Meet Automation Requirements</span>
+                            </div>
+                            <div className="device-error-content">
+                                <div className="device-error-reason">
+                                    {message.details?.reason || message.content}
+                                </div>
+
+                                {message.details?.missingDevices && message.details.missingDevices.length > 0 && (
+                                    <div className="device-error-missing">
+                                        <div className="device-error-missing-title">
+                                            Missing Required Device Types:
+                                        </div>
+                                        <ul className="device-error-missing-list">
+                                            {message.details.missingDevices.map((device, i) => (
+                                                <li key={i} className="device-error-missing-item">
+                                                    <span>❌</span>
+                                                    <span>{device}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                <div className="device-error-suggestion">
+                                    <strong>💡 Suggestion:</strong>
+                                    {message.details?.suggestion || ' Please add the required devices before attempting to create this automation rule.'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            } else if (message.role === 'assistant') {
+                return (
+                    <div key={index} className="assistant-message">
+                        {message.processingSteps && message.processingSteps.length > 0 && (
+                            <div className="processing-steps">
+                                {message.processingSteps.map((step, i) => (
+                                    <div key={i} className="processing-step">
+                                        <span className="step-icon">{step.icon}</span>
+                                        {step.text}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="success-banner">
+                            <span>✨</span>
+                            TAP code generated successfully!
+                        </div>
+
+                        <div className="response-card">
+                            <div className="response-header">
+                                HomeGenii: I've set up a new rule for you. Here's what it will do:
+                            </div>
+
+                            {message.intent && (
+                                <div className="intent-section">
+                                    <div className="intent-title">• High-Level Intent (Your Goal)</div>
+                                    <div className="intent-content">
+                                        {message.intent}
+                                    </div>
+                                </div>
+                            )}
+
+                            {message.plan && (
+                                <div className="plan-section">
+                                    <div className="plan-title">• Medium-Level Plan (How the system will do it)</div>
+                                    <div className="plan-trigger">
+                                        <strong>TRIGGER:</strong> {message.plan.trigger}
+                                    </div>
+                                    <div className="plan-action-title">ACTION SEQUENCE:</div>
+                                    <div className="intent-content" dangerouslySetInnerHTML={{ __html: message.plan.actions }} />
+                                </div>
+                            )}
+
+                            {message.tapCode && (
+                                <div className="code-section">
+                                    <div className="code-title">• Low-Level Implementation (The final code)</div>
+                                    <div className="code-block">
+                                        {message.tapCode}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="confirmation-text">Does this look right?</div>
+                            <div className="action-buttons">
+                                <button
+                                    className="action-btn btn-success"
+                                    onClick={() => handleConfirm(index, 'approve')}
+                                >
+                                    Looks Good!
+                                </button>
+                                <button
+                                    className="action-btn btn-warning"
+                                    onClick={() => handleConfirm(index, 'modify')}
+                                >
+                                    Make a Change
+                                </button>
+                                <button
+                                    className="action-btn btn-cancel"
+                                    onClick={() => handleConfirm(index, 'cancel')}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            } else if (message.role === 'error') {
+                return (
+                    <div key={index} className="assistant-message">
+                        <div className="error-banner">
+                            <span>⚠️</span>
+                            {message.content}
+                        </div>
+                    </div>
+                );
+            }
+        };
+
+        return (
+            <div className="container">
+                <div className="sidebar">
+                    <div className="logo-section">
+                        <div className="logo-container">
+                            <div className="logo">🏠</div>
+                            <div className="logo-text">
+                                <h1>HomeGenii</h1>
+                                <p>RAG-based TAP Generator</p>
+                            </div>
+                        </div>
+                        <div className={`connection-status ${connectionStatus === 'connected' ? 'status-connected' : 'status-disconnected'}`}>
+                            {connectionStatus === 'connected' ? '● Connected' : '● Disconnected'}
+                        </div>
+                    </div>
+
+                    <div className="sidebar-section">
+                        <div className="section-title">Choose LLM</div>
+                        <select
+                            className="select-box"
+                            value={selectedModel}
+                            onChange={(e) => setSelectedModel(e.target.value)}
+                        >
+                            <option>GPT-5</option>
+                        </select>
+                    </div>
+
+                    <div className="sidebar-section">
+                        <div className="section-title">Usage Statistics</div>
+                        <div className="stats-grid">
+                            <div className="stat-row">
+                                <span className="stat-label">Total tokens:</span>
+                                <span className="stat-value">{stats.tokens}</span>
+                            </div>
+                            <div className="stat-row">
+                                <span className="stat-label">Total price:</span>
+                                <span className="stat-value">${stats.price.toFixed(4)}</span>
+                            </div>
+                            <div className="stat-row">
+                                <span className="stat-label">Devices loaded:</span>
+                                <span className="stat-value">{devices.length}</span>
+                            </div>
+                            <div className="stat-row">
+                                <span className="stat-label">Floor plan ID:</span>
+                                <span className="stat-value">{floorPlanId ? floorPlanId.substring(0, 20) + '...' : 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="sidebar-section">
+                        <div className="menu-item" onClick={() => setShowFloorPlan(!showFloorPlan)}>
+                            <span>
+                                <span className="menu-icon">🏠</span>
+                                Floor Plan
+                            </span>
+                            <span>{showFloorPlan ? '∨' : '›'}</span>
+                        </div>
+
+                        {showFloorPlan && (
+                            <>
+                                <div className="view-toggle">
+                                    <button
+                                        className={`view-btn ${viewMode === 'map' ? 'active' : ''}`}
+                                        onClick={() => setViewMode('map')}
+                                    >
+                                        🗺️ Map View
+                                    </button>
+                                    <button
+                                        className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                                        onClick={() => setViewMode('list')}
+                                    >
+                                        📋 List View
+                                    </button>
+                                </div>
+
+                                {viewMode === 'map' ? (
+                                    <div className="floor-plan-preview">
+                                        <div className={`floor-plan-canvas ${!floorPlanImage ? 'empty' : ''}`}>
+                                            {floorPlanImage ? (
+                                                <>
+                                                    <img src={floorPlanImage} alt="Floor Plan" />
+                                                    {devices.map((device, index) => (
+                                                        <React.Fragment key={index}>
+                                                            <div
+                                                                className="device-marker"
+                                                                style={{
+                                                                    left: `${device.x}%`,
+                                                                    top: `${device.y}%`
+                                                                }}
+                                                                title={`${device.name} (${device.type}) in ${device.area}`}
+                                                            >
+                                                                {getDeviceIcon(device.type)}
+                                                            </div>
+                                                            <div
+                                                                className="device-label"
+                                                                style={{
+                                                                    left: `${device.x}%`,
+                                                                    top: `${device.y}%`
+                                                                }}
+                                                            >
+                                                                {device.name}
+                                                            </div>
+                                                        </React.Fragment>
+                                                    ))}
+                                                </>
+                                            ) : (
+                                                'No floor plan uploaded'
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="devices-list">
+                                        {Object.entries(getDevicesByRoom()).map(([room, roomDevices]) => (
+                                            <div key={room} className="room-group">
+                                                <div className="room-title">
+                                                    {room} ({roomDevices.length})
+                                                </div>
+                                                {roomDevices.map((device, index) => (
+                                                    <div key={index} className="device-item">
+                                                        <span className="device-item-icon">
+                                                            {getDeviceIcon(device.type)}
+                                                        </span>
+                                                        <span className="device-item-name">
+                                                            {device.name}
+                                                        </span>
+                                                        <span className="device-item-type">
+                                                            {getDeviceTypeName(device.type)}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ))}
+                                        {devices.length === 0 && (
+                                            <div style={{ textAlign: 'center', color: '#9ca3af', padding: '20px' }}>
+                                                No devices loaded
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+
+                    <div className="sidebar-section">
+                        <div className="section-title">
+                            <span className="menu-icon">⬆️</span>
+                            Floor Plan Management
+                        </div>
+                        <div className="upload-section">
+                            <div
+                                className={`upload-btn ${isUploadingFloorPlan ? 'uploading' : ''}`}
+                                onClick={() => !isUploadingFloorPlan && floorPlanInputRef.current.click()}
+                            >
+                                {isUploadingFloorPlan ? '⏳ Uploading...' : '+ Upload Floor Plan (SVG only)'}
+                                {!isUploadingFloorPlan && (
+                                    <input
+                                        ref={floorPlanInputRef}
+                                        type="file"
+                                        accept=".svg,image/svg+xml"
+                                        onChange={handleFloorPlanUpload}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                        <p className="upload-desc">
+                            Upload an SVG floor plan to visualize your smart home layout
+                        </p>
+                    </div>
+
+                    <div className="sidebar-section">
+                        <div className="section-title">
+                            <span className="menu-icon">📱</span>
+                            Device Mapping
+                        </div>
+
+                        <div className="upload-section">
+                            <div
+                                className={`upload-btn ${!floorPlanUploaded ? 'disabled' : ''}`}
+                                onClick={() => floorPlanUploaded && deviceMappingInputRef.current.click()}
+                            >
+                                + Upload Device Mapping (JSON only)
+                                {floorPlanUploaded && (
+                                    <input
+                                        ref={deviceMappingInputRef}
+                                        type="file"
+                                        accept=".json,application/json"
+                                        onChange={handleDeviceMappingUpload}
+                                    />
+                                )}
+                            </div>
+                            <p className="upload-desc">
+                                {floorPlanUploaded
+                                    ? 'Upload a JSON file containing device positions and configurations'
+                                    : 'Please upload a floor plan first before adding device mapping'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="sidebar-section">
+                        <div className="menu-item">
+                            <span>
+                                <span className="menu-icon">📚</span>
+                                Codebase (RAG)
+                            </span>
+                        </div>
+                        <div className="upload-btn" style={{marginTop: '12px'}}>
+                            + Add TAP Code to Knowledge
+                        </div>
+                    </div>
+                </div>
+
+                <div className="main-content">
+                    <div className="header">
+                        <h2>Smart Home Automation Assistant</h2>
+                        <p>Powered by Retrieval-Augmented Generation</p>
+                    </div>
+
+                    <div className="chat-area" ref={chatAreaRef}>
+                        {messages.length === 0 ? (
+                            <div className="welcome-message">
+                                Welcome to HomeGenii! I'm your RAG-based assistant for generating enhanced TAPs. Describe your smart home automation needs, and I'll search similar patterns and generate optimized code for you.
+                            </div>
+                        ) : (
+                            <div className="message-container">
+                                {messages.map((message, index) => renderMessage(message, index))}
+                            </div>
+                        )}
+
+                        {isLoading && (
+                            <div className="loading-indicator">
+                                <div className="spinner"></div>
+                                <span>Processing your request...</span>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="input-area">
+                        <div className="input-container">
+                            <input
+                                type="text"
+                                className="input-box"
+                                placeholder="Describe your smart home automation needs..."
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                disabled={isLoading}
+                            />
+                            <button
+                                className="send-btn"
+                                onClick={handleSend}
+                                disabled={isLoading || !input.trim()}
+                            >
+                                ➤
+                            </button>
+                        </div>
+                        <p className="example-text">
+                            Example: "On weekday mornings around 7 AM, turn on the kitchen and living room lights. If the bedroom 2 temperature is below 18°C, turn on the air conditioner to warm up the space before you get up."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    ReactDOM.render(<HomeGenii />, document.getElementById('root'));
+</script>
+</body>
+</html>
