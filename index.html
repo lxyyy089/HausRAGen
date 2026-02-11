@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeGenii - Smart Home Automation Assistant</title>
+    <title>HausRAGen - Smart Home Automation Assistant</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -26,18 +26,156 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        body.resizing{
+            cursor: col-resize;
+            user-select: none;
+        }
+
         .container {
             display: flex;
             height: 100vh;
+            position: relative;
         }
 
         .sidebar {
-            width: 560px;
+            width: 420px;
             background: white;
             border-right: 1px solid #e5e5e7;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+            flex-shrink: 0;
+            min-width: 150px;
+            max-width: 600px;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed{
+            width: 60px ;
+            min-width: 60px;
+            overflow: hidden;
+            border-right: 1px solid #e5e5e7;
+            background: #f5f5f7;
+        }
+
+        .sidebar.expanded{
+            width: 420px;
+        }
+
+        .toggle-sidebar-btn{
+            position: absolute;
+            top: 24px;
+            left: auto;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: white;
+            border: 1px solid #e5e5e7;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) ;
+            transition: all 0.2s;
+        }
+
+        .toggle-sidebar-btn:hover{
+            background: #f5f5f7;
+            transform: scale(1.1);
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.15);
+        }
+
+        .sidebar.collapsed .toggle-sidebar-btn{
+            position: relative;
+            top: auto;
+            left: auto;
+            right: auto;
+            width: 32px;
+            height: 32px;
+            display: block;
+            margin: 16px auto;
+            background: #667eea;
+            color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+        }
+
+        .sidebar.collapsed .toggle-sidebar-btn:hover{
+            background: #764ba2;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+
+        }
+
+
+    .sidebar.collapsed .sidebar-section,
+    .sidebar.collapsed .logo-text,
+    .sidebar.collapsed .connection-status,
+    .sidebar.collapsed .logo-container > *:not(.logo),
+    .sidebar.collapsed .menu-item > span:not(.menu-icon),
+    .sidebar.collapsed .menu-item > span:last-child,
+    .sidebar.collapsed .upload-desc,
+    .sidebar.collapsed .section-title h2,
+    .sidebar.collapsed .section-title span:not(.menu-icon),
+    .sidebar.collapsed .upload-btn span,
+    .sidebar.collapsed .view-toggle,
+    .sidebar.collapsed .floor-plan-preview,
+    .sidebar.collapsed .devices-list,
+    .sidebar.collapsed .room-title,
+    .sidebar.collapsed .device-item-name,
+    .sidebar.collapsed .device-item-type,
+    .sidebar.collapsed .select-box {
+        display: none !important;
+    }
+
+    /* 折叠时居中显示图标 */
+    .sidebar.collapsed .menu-item {
+        justify-content: center;
+        padding: 12px 0;
+    }
+
+    .sidebar.collapsed .menu-icon {
+        margin-right: 0;
+        font-size: 20px;
+    }
+
+    /* 折叠时的Logo */
+    .sidebar.collapsed .logo-container {
+        justify-content: center;
+    }
+
+    .sidebar.collapsed .logo {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+        margin: 0 auto;
+    }
+
+
+        .toggle-sidebar-btn::before{
+            content: "<";
+            font-weight: 600;
+        }
+
+        .sidebar.collapsed .toggle-sidebar-btn::before{
+            content: ">";
+        }
+
+        .sidebar.collapsed .logo-container,
+        .sidebar.collapsed .connection-status,
+        .sidebar.collapsed .sidebar-section,
+        .sidebar.collapsed .logo-text{
+            display: block;
+            opacity: 1;
+            visibility: visible;
         }
 
         .logo-section {
@@ -218,7 +356,7 @@
 
         .floor-plan-canvas {
             width: 100%;
-            height: 550px;
+            height: 200px;
             position: relative;
             background: white;
             display: flex;
@@ -391,13 +529,75 @@
             display: flex;
             flex-direction: column;
             background: #fafafa;
+            position: relative;
         }
 
         .header {
             background: white;
             padding: 24px 32px;
             border-bottom: 1px solid #e5e5e7;
+
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+
+            transition: padding 0.4s ease,background 0.4s ease;
         }
+
+
+        .header.compact{
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header.compact h2{
+            font-size: 16px;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .header.compact p{
+            display: none;
+        }
+
+        .header-left{
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header.compact .header-left{
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-right{
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-label{
+            font-size: 12px;
+            color: #86868b;
+            font-weight: 500;
+        }
+
+        .select-box--sm{
+            width: auto;
+            min-width: 140px;
+            padding: 8px 34px 8px 12px;
+            font-size: 13px;
+        }
+
+
 
         .header h2 {
             font-size: 28px;
@@ -405,18 +605,32 @@
             color: #1d1d1f;
             margin-bottom: 6px;
             letter-spacing: -0.7px;
+            transition: font-size 0.2s ease, opacity 0.2s ease;
         }
 
         .header p {
             font-size: 14px;
             color: #86868b;
             font-weight: 400;
+            transition: font-size 0.2s ease, opacity 0.2s ease;
         }
 
         .chat-area {
             flex: 1;
             overflow-y: auto;
             padding: 32px;
+        }
+
+        .chat-area--empty{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-area--empty .welcome-message{
+            margin: 0;
+            width: 100%;
+            max-width: 920px;
         }
 
         .welcome-message {
@@ -886,6 +1100,238 @@
             background: #fee2e2;
             color: #991b1b;
         }
+
+        /*修改网页的主色调*/
+        :root {
+        --mimo-bg: #F8F5F3;           /* paper */
+        --mimo-surface: rgba(255,255,255,0.72);
+        --mimo-surface-solid: #FFFFFF;
+        --mimo-ink: #0B0B0B;          /* ink */
+        --mimo-ink-2: #111111;
+        --mimo-muted: #6E6E6E;
+        --mimo-border: rgba(11,11,11,0.14);
+        --mimo-border-weak: rgba(11,11,11,0.10);
+        --mimo-shadow: 0 16px 40px rgba(0,0,0,0.08);
+        --mimo-radius: 16px;
+        }
+
+        html, body {
+        background: var(--mimo-bg);
+        color: var(--mimo-ink);
+        }
+
+        body {
+        position: relative;
+        }
+
+        body::before {
+        content: none !important;
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-size: 360px 200px;
+        background-repeat: repeat;
+        opacity: 0.55;
+        z-index: 0;
+        }
+
+        #root, .container {
+        position: relative;
+        z-index: 1;
+        }
+
+        .container {
+        background: transparent;
+        }
+
+        .sidebar {
+        background: transparent;
+        border-right: 1px solid var(--mimo-border);
+        box-shadow: none;
+        }
+
+        .logo-section,
+        .sidebar-section {
+        border-bottom: 1px solid var(--mimo-border-weak);
+        }
+
+        .logo {
+        background: var(--mimo-bg) !important;
+        border-radius: 999px !important;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+        border: 1px solid var(--mimo-ink);
+        box-shadow: none;
+        }
+
+        .logo-text h1 {
+        color: var(--mimo-ink);
+        }
+
+        .logo-text p,
+        .stat-label,
+        .upload-desc,
+        .example-text {
+        color: var(--mimo-muted);
+        }
+
+        .menu-item:hover {
+        color: var(--mimo-ink) !important;
+        }
+
+        .main-content {
+        background: transparent;
+        }
+
+        .header {
+        background: transparent !important;
+        border-bottom: 1px solid var(--mimo-border);
+        }
+
+        .header h2 {
+        color: var(--mimo-ink);
+        letter-spacing: -0.8px;
+        }
+
+        .header p {
+        color: var(--mimo-muted);
+        }
+
+        .header-right .header-label {
+        color: var(--mimo-muted);
+        }
+
+        .header-label{
+            color: var(--mimo-ink);
+        }
+
+        .select-box {
+        background: var(--mimo-bg) !important;
+        border: 1px solid var(--mimo-ink) !important;
+        color: var(--mimo-ink);
+        padding-right: 40px !important;
+
+        /* 关键：统一去掉系统默认样式，避免箭头冲突 */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+        /* 关键：加一个右侧向下箭头 */
+        background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2712%27%20height%3D%278%27%20viewBox%3D%270%200%2012%208%27%20fill%3D%27none%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M1%201.5L6%206.5L11%201.5%27%20stroke%3D%27%230B0B0B%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 14px center !important;
+        background-size: 12px 8px !important;
+        box-shadow: none;
+        backdrop-filter: none !important;
+        }
+
+        .select-box:focus {
+        outline: none;
+        border-color: var(--mimo-ink);
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+        }
+
+
+        .chat-area {
+        background: transparent;
+        }
+
+        .chat-area--empty {
+        padding: 32px;
+        }
+
+        .welcome-message {
+        background: var(--mimo-surface);
+        border: 1px solid var(--mimo-border);
+        box-shadow: var(--mimo-shadow);
+        }
+
+        .assistant-message {
+        background: var(--mimo-surface);
+        border: 1px solid var(--mimo-border-weak);
+        }
+
+        .user-message {
+        background: var(--mimo-ink) !important;
+        color: #fff !important;
+        }
+
+        .input-area {
+        background: transparent !important;
+        border-top: 1px solid var(--mimo-border);
+        }
+
+        .input-box {
+        background: var(--mimo-surface-solid);
+        border: 1px solid var(--mimo-border);
+        }
+
+        .input-box:focus {
+        border-color: var(--mimo-ink) !important;
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.08) !important;
+        }
+
+        .send-btn {
+        background: var(--mimo-ink) !important;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.22) !important;
+        }
+
+        .send-btn:hover:not(:disabled) {
+        background: var(--mimo-ink-2) !important;
+        }
+
+        .spinner {
+        border-top-color: var(--mimo-ink) !important;
+        }
+
+        .upload-btn {
+        background: transparent;
+        border: 1px dashed var(--mimo-border);
+        }
+
+        .upload-btn:hover:not(.disabled) {
+        border-color: var(--mimo-ink) !important;
+        background: rgba(0,0,0,0.04) !important;
+        color: var(--mimo-ink) !important;
+        }
+
+        .device-marker {
+        background: var(--mimo-ink) !important;
+        border: 2px solid var(--mimo-bg) !important;
+        }
+
+        .view-btn.active {
+        background: var(--mimo-ink) !important;
+        color: #fff !important;
+        border: 1px solid var(--mimo-ink);
+        }
+
+        .view-btn:hover:not(.active){
+            border: 1px solid var(--mimo-ink);
+            color: var(--mimo-ink);
+
+        }
+
+        .toggle-sidebar-btn {
+        color: var(--mimo-ink);
+        background-color: var(--mimo-bg);
+        box-shadow: none ;
+        border: none;
+        }
+        .toggle-sidebar-btn:hover{
+        background-color: var(--mimo-ink);
+        color: var(--mimo-bg);
+        }
+        .sidebar.collapsed{
+            background-color: transparent;
+        }
+        .sidebar.collapsed .toggle-sidebar-btn{
+            background-color: var(--mimo-ink);
+            box-shadow: none;
+        }
+        .sidebar.collapsed .toggle-sidebar-btn:hover{
+            background-color: var(--mimo-bg);
+            color: var(--mimo-ink);
+        }
     </style>
 </head>
 <body>
@@ -899,12 +1345,18 @@
         ? 'http://localhost:3000'
         : '';  // 生产环境使用相对路径
 
-    function HomeGenii() {
+    function HausRAGen() {
+        //用户输入的文本
         const [input, setInput] = useState('');
+        //聊天历史记录
         const [messages, setMessages] = useState([]);
+        //是否正在处理请求
         const [isLoading, setIsLoading] = useState(false);
+        //平面图图片URL
         const [floorPlanImage, setFloorPlanImage] = useState(null);
+        //平面图是都已经上传
         const [floorPlanUploaded, setFloorPlanUploaded] = useState(false);
+        //平面图的唯一标识符
         const [floorPlanId, setFloorPlanId] = useState(null);
         const [isUploadingFloorPlan, setIsUploadingFloorPlan] = useState(false);
         const [deviceMapping, setDeviceMapping] = useState(null);
@@ -919,16 +1371,25 @@
         const deviceMappingInputRef = useRef(null);
         const chatAreaRef = useRef(null);
 
+        //左侧状态栏
+        const [isSidebarCollapsed,setIsSidebarCollapsed]=useState(false);
+        const [sidebarWidth,setSidebarWidth]=useState(420);
+        const [isResizing,setIsResizing]=useState(false);
+        const sidebarRef=useRef(null);
+
+        //组件挂载时检查后端链接
         useEffect(() => {
             checkBackendConnection();
         }, []);
 
+        //消息变化时自动滚动到底部
         useEffect(() => {
             if (chatAreaRef.current) {
                 chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
             }
         }, [messages, isLoading]);
 
+        //发送健康检查请求到后端API
         const checkBackendConnection = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/health`, {
@@ -948,6 +1409,7 @@
             }
         };
 
+        //处理用户上传的SVG平面图文件，发送到后端API
         const handleFloorPlanUpload = async (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -963,7 +1425,7 @@
                     const formData = new FormData();
                     formData.append('floorPlan', file);
 
-                    console.log('📤 Uploading floor plan to backend...');
+                    console.log('Uploading floor plan to backend...');
 
                     const response = await fetch(`${API_BASE_URL}/api/upload-floor-plan`, {
                         method: 'POST',
@@ -972,7 +1434,7 @@
 
                     if (response.ok) {
                         const data = await response.json();
-                        console.log('✅ Floor plan uploaded successfully:', data);
+                        console.log('Floor plan uploaded successfully:', data);
 
                         setFloorPlanId(data.fileId);
 
@@ -1012,6 +1474,7 @@
             }
         };
 
+        //类似平面图上传，处理JSON格式的设备配置
         const handleDeviceMappingUpload = async (e) => {
             if (!floorPlanUploaded || !floorPlanId) {
                 alert('Please upload a floor plan first');
@@ -1037,8 +1500,8 @@
                             return;
                         }
 
-                        console.log('📊 Parsed device mapping:', mapping);
-                        console.log('📄 Using floor plan ID:', floorPlanId);
+                        console.log('Parsed device mapping:', mapping);
+                        console.log('Using floor plan ID:', floorPlanId);
 
                         const response = await fetch(`${API_BASE_URL}/api/upload-device-mapping`, {
                             method: 'POST',
@@ -1053,7 +1516,7 @@
 
                         if (response.ok) {
                             const data = await response.json();
-                            console.log('✅ Device mapping uploaded successfully:', data);
+                            console.log('Device mapping uploaded successfully:', data);
 
                             setDeviceMapping({ devices: data.devices });
                             setDevices(data.devices);
@@ -1076,6 +1539,7 @@
             }
         };
 
+        //发送用户请求到后端生成TAP代码，使用SSE流式接收响应
         const handleSend = async () => {
             if (input.trim() && !isLoading) {
                 const userMessage = input.trim();
@@ -1214,6 +1678,7 @@
             }
         };
 
+        //处理用户对生成的TAP代码的确认操作（批准、修改、取消）
         const handleConfirm = async (messageIndex, action) => {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/confirm-action`, {
@@ -1249,6 +1714,7 @@
             }
         };
 
+        //根据设备类型返回对应的emoji图标
         const getDeviceIcon = (type) => {
             const icons = {
                 'light': '💡',
@@ -1265,6 +1731,7 @@
             return icons[type] || '📍';
         };
 
+        //返回设备类型的可读名称
         const getDeviceTypeName = (type) => {
             const names = {
                 'light': 'Light',
@@ -1281,6 +1748,7 @@
             return names[type] || type;
         };
 
+        //按照房间分组设备
         const getDevicesByRoom = () => {
             const rooms = {};
             devices.forEach(device => {
@@ -1292,6 +1760,7 @@
             return rooms;
         };
 
+        //根据消息类型渲染不同的UI组件
         const renderMessage = (message, index) => {
             if (message.role === 'user') {
                 return (
@@ -1372,7 +1841,7 @@
 
                         <div className="response-card">
                             <div className="response-header">
-                                HomeGenii: I've set up a new rule for you. Here's what it will do:
+                                HausRAGen: I've set up a new rule for you. Here's what it will do:
                             </div>
 
                             {message.intent && (
@@ -1432,7 +1901,6 @@
                 return (
                     <div key={index} className="assistant-message">
                         <div className="error-banner">
-                            <span>⚠️</span>
                             {message.content}
                         </div>
                     </div>
@@ -1442,76 +1910,81 @@
 
         return (
             <div className="container">
-                <div className="sidebar">
+                <div 
+                    className={`sidebar ${isSidebarCollapsed?'collapsed':''}`}
+                >
                     <div className="logo-section">
-                        <div className="logo-container">
-                            <div className="logo">🏠</div>
-                            <div className="logo-text">
-                                <h1>HomeGenii</h1>
-                                <p>RAG-based TAP Generator</p>
-                            </div>
-                        </div>
-                        <div className={`connection-status ${connectionStatus === 'connected' ? 'status-connected' : 'status-disconnected'}`}>
-                            {connectionStatus === 'connected' ? '● Connected' : '● Disconnected'}
-                        </div>
-                    </div>
-
-                    <div className="sidebar-section">
-                        <div className="section-title">Choose LLM</div>
-                        <select
-                            className="select-box"
-                            value={selectedModel}
-                            onChange={(e) => setSelectedModel(e.target.value)}
+                        <button
+                            className="toggle-sidebar-btn"
+                            onClick={() =>setIsSidebarCollapsed(!isSidebarCollapsed)}
+                            title={isSidebarCollapsed?"展开侧边栏":"折叠侧边栏"}
                         >
-                            <option>GPT-5</option>
-                        </select>
+                        </button>
+
+                        {!isSidebarCollapsed &&(
+                            <>
+                            <div className="logo-container">
+                                <div className="logo">🏠</div>
+                                <div className="logo-text">
+                                    <h1>HausRAGen</h1>
+                                    <p>RAG-based TAP Generator</p>
+                                </div>
+                            </div>
+
+                            <div className={`connection-status ${connectionStatus === 'connected' ? 'status-connected' : 'status-disconnected'}`}>
+                                {connectionStatus === 'connected' ? '● Connected' : '● Disconnected'}
+                            </div>
+                            </>
+                        )}
                     </div>
 
-                    <div className="sidebar-section">
-                        <div className="section-title">Usage Statistics</div>
-                        <div className="stats-grid">
-                            <div className="stat-row">
-                                <span className="stat-label">Total tokens:</span>
-                                <span className="stat-value">{stats.tokens}</span>
-                            </div>
-                            <div className="stat-row">
-                                <span className="stat-label">Total price:</span>
-                                <span className="stat-value">${stats.price.toFixed(4)}</span>
-                            </div>
-                            <div className="stat-row">
-                                <span className="stat-label">Devices loaded:</span>
-                                <span className="stat-value">{devices.length}</span>
-                            </div>
-                            <div className="stat-row">
-                                <span className="stat-label">Floor plan ID:</span>
-                                <span className="stat-value">{floorPlanId ? floorPlanId.substring(0, 20) + '...' : 'N/A'}</span>
-                            </div>
+                    {!isSidebarCollapsed &&(<div className="sidebar-section">
+                        <div className="section-title">
+                            <h3>Usage Statistics</h3>
+                        </div>
+                        <div className="stats-grid">                   
+                                <div className="stat-row">
+                                    <span className="stat-label">Total tokens:</span>
+                                    <span className="stat-value">{stats.tokens}</span>
+                                </div>
+                                <div className="stat-row">
+                                    <span className="stat-label">Total price:</span>
+                                    <span className="stat-value">${stats.price.toFixed(4)}</span>
+                                </div>
+                                <div className="stat-row">
+                                    <span className="stat-label">Devices loaded:</span>
+                                    <span className="stat-value">{devices.length}</span>
+                                </div>
+                                <div className="stat-row">
+                                    <span className="stat-label">Floor plan ID:</span>
+                                    <span className="stat-value">{floorPlanId ? floorPlanId.substring(0, 20) + '...' : 'N/A'}</span>
+                                </div>
                         </div>
                     </div>
+                )}
 
                     <div className="sidebar-section">
                         <div className="menu-item" onClick={() => setShowFloorPlan(!showFloorPlan)}>
                             <span>
-                                <span className="menu-icon">🏠</span>
-                                Floor Plan
+                                <h3>Floor Plan</h3>
                             </span>
-                            <span>{showFloorPlan ? '∨' : '›'}</span>
+                            <span>{showFloorPlan ? '∨' : '>'}</span>
                         </div>
 
-                        {showFloorPlan && (
+                        {!isSidebarCollapsed && showFloorPlan && (
                             <>
                                 <div className="view-toggle">
                                     <button
                                         className={`view-btn ${viewMode === 'map' ? 'active' : ''}`}
                                         onClick={() => setViewMode('map')}
                                     >
-                                        🗺️ Map View
+                                        <h4>Map View</h4>
                                     </button>
                                     <button
                                         className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                                         onClick={() => setViewMode('list')}
                                     >
-                                        📋 List View
+                                      <h4>List View</h4>
                                     </button>
                                 </div>
 
@@ -1583,36 +2056,37 @@
                         )}
                     </div>
 
-                    <div className="sidebar-section">
+                    {!isSidebarCollapsed&&(<div className="sidebar-section">
                         <div className="section-title">
-                            <span className="menu-icon">⬆️</span>
-                            Floor Plan Management
+                            <h3>Floor Plan Management</h3>
                         </div>
                         <div className="upload-section">
                             <div
                                 className={`upload-btn ${isUploadingFloorPlan ? 'uploading' : ''}`}
                                 onClick={() => !isUploadingFloorPlan && floorPlanInputRef.current.click()}
                             >
-                                {isUploadingFloorPlan ? '⏳ Uploading...' : '+ Upload Floor Plan (SVG only)'}
-                                {!isUploadingFloorPlan && (
-                                    <input
-                                        ref={floorPlanInputRef}
-                                        type="file"
-                                        accept=".svg,image/svg+xml"
-                                        onChange={handleFloorPlanUpload}
-                                    />
-                                )}
-                            </div>
+                                    {isUploadingFloorPlan ? '⏳ Uploading...' : '+ Upload Floor Plan (SVG only)'}
+                                    {!isUploadingFloorPlan && (
+                                        <input
+                                            ref={floorPlanInputRef}
+                                            type="file"
+                                            accept=".svg,image/svg+xml"
+                                            onChange={handleFloorPlanUpload}
+                                        />
+                                    )}
+                                    
+                         </div>
                         </div>
-                        <p className="upload-desc">
-                            Upload an SVG floor plan to visualize your smart home layout
-                        </p>
+
+                            <p className="upload-desc">
+                                Upload an SVG floor plan to visualize your smart home layout
+                            </p>
                     </div>
+                    )}
 
                     <div className="sidebar-section">
                         <div className="section-title">
-                            <span className="menu-icon">📱</span>
-                            Device Mapping
+                            <h3>Device Mapping</h3>
                         </div>
 
                         <div className="upload-section">
@@ -1620,47 +2094,62 @@
                                 className={`upload-btn ${!floorPlanUploaded ? 'disabled' : ''}`}
                                 onClick={() => floorPlanUploaded && deviceMappingInputRef.current.click()}
                             >
-                                + Upload Device Mapping (JSON only)
-                                {floorPlanUploaded && (
-                                    <input
-                                        ref={deviceMappingInputRef}
-                                        type="file"
-                                        accept=".json,application/json"
-                                        onChange={handleDeviceMappingUpload}
-                                    />
-                                )}
+
+                                    + Upload Device Mapping (JSON only)
+                                    {floorPlanUploaded && (
+                                        <input
+                                            ref={deviceMappingInputRef}
+                                            type="file"
+                                            accept=".json,application/json"
+                                            onChange={handleDeviceMappingUpload}
+                                        />
+                                    )}
                             </div>
-                            <p className="upload-desc">
-                                {floorPlanUploaded
-                                    ? 'Upload a JSON file containing device positions and configurations'
-                                    : 'Please upload a floor plan first before adding device mapping'}
-                            </p>
-                        </div>
+                                <p className="upload-desc">
+                                    {floorPlanUploaded
+                                        ? 'Upload a JSON file containing device positions and configurations'
+                                        : 'Please upload a floor plan first before adding device mapping'}
+                                </p>
+                            </div>
                     </div>
 
                     <div className="sidebar-section">
                         <div className="menu-item">
                             <span>
-                                <span className="menu-icon">📚</span>
-                                Codebase (RAG)
+                                <h3>Codebase (RAG)</h3>
                             </span>
                         </div>
-                        <div className="upload-btn" style={{marginTop: '12px'}}>
-                            + Add TAP Code to Knowledge
-                        </div>
+                        {!isSidebarCollapsed&&(
+                            <div className="upload-btn" style={{marginTop: '12px'}}>
+                                + Add TAP Code to Knowledge
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 <div className="main-content">
-                    <div className="header">
+                    <div className={`header ${messages.length>0? 'compact':''}`}>
+                        <div className="header-left">
                         <h2>Smart Home Automation Assistant</h2>
                         <p>Powered by Retrieval-Augmented Generation</p>
+                        </div>
+                        <div className="header-right">
+                            <span className="header-label"><h3>LLM</h3></span>
+                            <select
+                                className="select-box select-box--sm"
+                                value={selectedModel}
+                                onChange={(e)=>setSelectedModel(e.target.value)}
+                            >
+                                <option>GPT-5</option>
+                                <option>GPT-4</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div className="chat-area" ref={chatAreaRef}>
+                    <div className={`chat-area ${messages.length ===0 ? 'chat-area--empty':''}`} ref={chatAreaRef}>
                         {messages.length === 0 ? (
                             <div className="welcome-message">
-                                Welcome to HomeGenii! I'm your RAG-based assistant for generating enhanced TAPs. Describe your smart home automation needs, and I'll search similar patterns and generate optimized code for you.
+                                Welcome to HausRAGen! I'm your RAG-based assistant for generating enhanced TAPs. Describe your smart home automation needs, and I'll search similar patterns and generate optimized code for you.
                             </div>
                         ) : (
                             <div className="message-container">
@@ -1704,7 +2193,7 @@
         );
     }
 
-    ReactDOM.render(<HomeGenii />, document.getElementById('root'));
+    ReactDOM.render(<HausRAGen />, document.getElementById('root'));
 </script>
 </body>
 </html>
